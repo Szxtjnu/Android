@@ -28,14 +28,23 @@ import com.bumptech.glide.request.target.Target;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "hello";
+    String url = "https://pic.imgdb.cn/api/avatar";
+    private ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        String url = "https://pic.imgdb.cn/api/avatar";
-        ImageView imageView = findViewById(R.id.imageView);
+        imageView = findViewById(R.id.imageView);
         RequestQueue queue = Volley.newRequestQueue(this);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadImage();
+            }
+        });
+    }
+    void loadImage(){
         Glide.with(this)
                 .load(url)
                 .placeholder(R.drawable.ic_launcher_background)
@@ -51,11 +60,5 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .into(imageView);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-
-            }
-        });
     }
 }
