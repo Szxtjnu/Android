@@ -2,8 +2,10 @@ package com.example.volley;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.LruCache;
@@ -18,6 +20,11 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "hello";
@@ -25,21 +32,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         String url = "https://pic.imgdb.cn/api/avatar";
-        NetworkImageView imageView = findViewById(R.id.imageView);
+        ImageView imageView = findViewById(R.id.imageView);
         RequestQueue queue = Volley.newRequestQueue(this);
-        ImageLoader imageLoader = new ImageLoader(queue, new ImageLoader.ImageCache() {
-            private LruCache<String, Bitmap> cache = new LruCache<>(30);
-            @Override
-            public Bitmap getBitmap(String url) {
-                return cache.get(url);
-            }
+        Glide.with(this)
+                .load(url)
+                .placeholder(R.drawable.ic_launcher_background)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        return false;
+                    }
 
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                })
+                .into(imageView);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void putBitmap(String url, Bitmap bitmap) {
-                cache.put(url, bitmap);
+            public void onRefresh() {
+
             }
         });
-        imageView.setImageUrl(url, imageLoader);
     }
 }
